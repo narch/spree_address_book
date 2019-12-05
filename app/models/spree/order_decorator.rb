@@ -19,11 +19,27 @@ Spree::Order.class_eval do
     true
   end
 
+  # def bill_address_id=(id)
+  #   address = Spree::Address.where(:id => id).first
+  #   if address && address.user_id == self.user_id
+  #     self["bill_address_id"] = address.id
+  #     self.user.update_attribute(:bill_address_id, address.id)
+  #     self.bill_address.reload
+  #   else
+  #     self["bill_address_id"] = nil
+  #   end
+  # end
+
   def bill_address_id=(id)
     address = Spree::Address.where(:id => id).first
     if address && address.user_id == self.user_id
       self["bill_address_id"] = address.id
-      self.user.update_attribute(:bill_address_id, address.id)
+      # below code keeps changing the users billing address
+      #self.user.update_attribute(:bill_address_id, address.id)
+
+      # change it to set only if null
+      self.user.update_attribute(:bill_address_id, address.id) if !self.user.billing_address
+
       self.bill_address.reload
     else
       self["bill_address_id"] = nil
@@ -35,14 +51,27 @@ Spree::Order.class_eval do
     self.user.bill_address = self.bill_address if self.user
   end
 
+  # def ship_address_id=(id)
+  #   address = Spree::Address.where(:id => id).first
+  #   if address && address.user_id == self.user_id
+  #     self["ship_address_id"] = address.id
+  #     self.user.update_attribute(:ship_address_id, address.id)
+  #     self.ship_address.reload
+  #   else
+  #     self["ship_address_id"] = nil
+  #   end
+  # end
+
   def ship_address_id=(id)
-    address = Spree::Address.where(:id => id).first
-    if address && address.user_id == self.user_id
-      self["ship_address_id"] = address.id
-      self.user.update_attribute(:ship_address_id, address.id)
-      self.ship_address.reload
+    address = Spree::Address.find_by(id: id)
+    if address && address.user_id == user_id
+      self['ship_address_id'] = address.id
+      # apply the same fix as above in bill_address_id
+      #user.update_attribute(:ship_address_id, address.id)
+      user.update_attribute(:ship_address_id, address.id) if !self.user.shipping_address
+      ship_address.reload
     else
-      self["ship_address_id"] = nil
+      self['ship_address_id'] = nil
     end
   end
 
