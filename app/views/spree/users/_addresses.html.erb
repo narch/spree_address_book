@@ -6,8 +6,11 @@
     <tr>
       <td><%= address.to_s.gsub("<br/>", ", ") %></td>
       <td>
-        <%= link_to Spree.t(:edit), edit_address_path(address) %>&nbsp;
-        <%= link_to Spree.t(:remove), address_path(address), method: :delete, confirm: Spree.t(:are_you_sure) %>
+        <%= button_link_to '', edit_address_path(address), {class: 'btn-sm btn-warning pull-left glyphicon glyphicon-edit', style: 'margin-right: 3px;'} %>
+        <%= button_link_to '', address_path(address), {class: 'btn-sm btn-danger pull-left glyphicon glyphicon-trash', style: 'margin-right: 3px;', method: :delete, confirm: Spree.t(:are_you_sure)} %>
+        <% unless address.priority == 1 %>
+        <%= button_link_to 'SET AS DEFAULT', default_address_path(address), {class: 'btn-sm btn-warning pull-left', style: 'margin-right: 3px;'} %>
+        <% end %>
       </td>
     </tr>
     <% end %>
@@ -21,3 +24,4 @@
 <div id='new_address_link'>
   <%= link_to t(:add_new_shipping_address, scope: :address_book), controller: :addresses, action: :new %>
 </div>
+<br><br>

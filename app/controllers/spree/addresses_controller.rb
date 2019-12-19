@@ -8,6 +8,19 @@ if defined?(Spree::Frontend)
       @addresses = spree_current_user.addresses
     end
 
+    def default
+      @address = Spree::Address.find(params[:id])
+      if @address.user_id != spree_current_user.id
+        flash[:error] = "Invalid request."
+        redirect_to account_path
+      else
+        @address.user.set_default_address(@address.id)
+        @address.user.update_attributes(bill_address_id: @address.id, ship_address_id: @address.id)
+        flash[:notice] = "Default shipping and billing address has been updated."
+        redirect_to account_path
+      end
+    end
+
     def create
       @address = spree_current_user.addresses.build(address_params)
       if @address.save
@@ -74,4 +87,3 @@ if defined?(Spree::Frontend)
       end
   end
 end
-
